@@ -41,7 +41,7 @@ int OutputDebugStringF(const char* pszFormat, ...)
 	return 0;
 }
 
-RPCMinerClient::RPCMinerClient():m_blockid(0),m_serverstatsurl(""),m_workrefreshms(4000),m_foundcount(0),m_hashraterefresh(10000),m_lasthashdisplay(0),m_done(true),m_running(false)
+RPCMinerClient::RPCMinerClient():m_blockid(0),m_serverstatsurl(""),m_workrefreshms(4000),m_foundcount(0),m_hashraterefresh(30000),m_lasthashdisplay(0),m_done(true),m_running(false)
 {
 	m_startuptime=GetTimeMillis();
 }
@@ -219,6 +219,7 @@ void RPCMinerClient::Run(const std::string &url, const std::string &user, const 
 	m_lasttarget=0;
 	m_lasthashdisplay=GetTimeMillis();
 	int64 timenowmillis;
+	static unsigned int counter=0u;
 
 	std::cout << "Client will start " << m_threadcount << " miner threads" << std::endl;
 	std::cout << "Work will be refreshed every " << m_workrefreshms << " ms" << std::endl;
@@ -230,11 +231,12 @@ void RPCMinerClient::Run(const std::string &url, const std::string &user, const 
 			m_minerthreads.Start(new threadtype);
 		}
 
-		if(lastrequestedwork<=GetTimeMillis()-m_workrefreshms)
+	/*	if(lastrequestedwork<=GetTimeMillis()-m_workrefreshms)
 		{
 			SendWorkRequest();
 			lastrequestedwork=GetTimeMillis();
 		}
+	*/
 
 		if(m_serverstatsurl!="" && laststats<=GetTimeMillis()-60000)
 		{
@@ -251,11 +253,21 @@ void RPCMinerClient::Run(const std::string &url, const std::string &user, const 
 			std::cout << GetTimeStr(time(0)) << " Found Hash!" << std::endl;
 			RPCMinerThread::foundhash fhash;
 			m_minerthreads.GetFoundHash(fhash);
+			++counter;
+			std::cout<<"Hashs found: "<<counter<<std::endl;
 			SendFoundHash(fhash.m_blockid,fhash.m_nonce);
 			SendWorkRequest();
+			lastrequestedwork=GetTimeMillis();
 		}
+                CleanupOldBlocks();
+		
+                if(lastrequestedwork<=GetTimeMillis()-m_workrefreshms)
+                {
+                        SendWorkRequest();
+                        lastrequestedwork=GetTimeMillis();
+                }
 
-		CleanupOldBlocks();
+		
 		
 		timenowmillis=GetTimeMillis();
 		if(m_hashraterefresh>0 && (m_lasthashdisplay+m_hashraterefresh)<=timenowmillis)
@@ -278,7 +290,7 @@ void RPCMinerClient::Run(const std::string &url, const std::string &user, const 
 			
 		}
 
-		Sleep(100);
+		Sleep(10);
 	}
 
 	m_running=false;

@@ -14,46 +14,49 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-**/
+ **/
 
 #ifndef _rpcthread_gpu_
 #define _rpcthread_gpu_
 
 #include "rpcminerthread.h"
 #ifdef _BITCOIN_MINER_CUDA_
-	#include "../cuda/bitcoinminercuda.h"
+#include "../cuda/bitcoinminercuda.h"
 #elif defined(_BITCOIN_MINER_OPENCL_)
-	#include "../opencl/bitcoinmineropencl.h"
+#include "../opencl/bitcoinmineropencl.h"
 #endif
 
-class RPCMinerThreadGPU:public RPCMinerThread
+class RPCMinerThreadGPU : public RPCMinerThread
 {
-public:
-	RPCMinerThreadGPU();
-	~RPCMinerThreadGPU();
+private:
+    typedef unsigned int uint32;
 
-	virtual const bool Start()
-	{
-		m_threaddata.m_done=false;
-		m_threaddata.m_havework=false;
-		m_threaddata.m_generate=true;
-		m_threaddata.m_nextblock.m_blockid=0;
-		m_threaddata.m_hashcount=0;
-		if(!CreateThread(RPCMinerThreadGPU::Run,&m_threaddata))
-		{
-			m_threaddata.m_done=true;
-			return false;
-		}
-		return true;
-	}
+public:
+    RPCMinerThreadGPU();
+    ~RPCMinerThreadGPU();
+
+    virtual const bool Start()
+    {
+        m_threaddata.m_done = false;
+        m_threaddata.m_havework = false;
+        m_threaddata.m_generate = true;
+        m_threaddata.m_nextblock.m_blockid = 0;
+        m_threaddata.m_hashcount = 0;
+        if (!CreateThread(RPCMinerThreadGPU::Run, &m_threaddata))
+        {
+            m_threaddata.m_done = true;
+            return false;
+        }
+        return true;
+    }
 
 private:
-	static void Run(void *arg);
+    static void Run(void *arg);
 
 #ifdef _BITCOIN_MINER_CUDA_
-	typedef CUDARunner gpurunnertype;
+    typedef CUDARunner gpurunnertype;
 #elif defined(_BITCOIN_MINER_OPENCL_)
-	typedef OpenCLRunner gpurunnertype;
+    typedef OpenCLRunner gpurunnertype;
 #endif
 };
 

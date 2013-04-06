@@ -24,6 +24,23 @@
 
 #include <cuda.h>
 
+
+/**
+ * Captures CUDA errors and prints messages to stdout, including line number and file.
+ *
+ * @param cmd command with cudaError_t return value to check
+ */
+#define CUDA_CHECK(cmd) {cudaError_t error = cmd; if(error!=cudaSuccess){std::cerr<<"<"<<__FILE__<<">:"<<__LINE__<<std::endl; throw std::runtime_error(std::string("[CUDA] Error: ") + std::string(cudaGetErrorString(error)));}}
+
+#define __delete(function,var) if((var)) { CUDA_CHECK(function(var)); var=NULL; }
+
+#define __blocksPerSM(version)  \
+        ((version)<=130?2:             \
+        ((version)<=210?4:             \
+        ((version)<=300?8:             \
+        ((version)<=350?8:1 \
+        ))))
+
 class CUDARunner:public GPURunner<unsigned long,int>
 {
 public:
@@ -32,49 +49,23 @@ public:
 
 	void FindBestConfiguration();
 
-	const unsigned long RunStep();
+	const unsigned long RunStep(uint32 nonce);
 
-	cuda_in *GetIn()		{ return m_in; }
+	uint32* GetIn()		{ return m_inH; }
 
 private:
 	void DeallocateResources();
 	const bool AllocateResources(const int numb, const int numt);
 
-	cuda_in *m_in;
-	CUdeviceptr m_devin;
-	cuda_out *m_out;
-	CUdeviceptr m_devout;
+	uint32* m_inH;
+        uint32* m_inD;
 
-	CUdevice m_device;
-	CUcontext m_context;
-	CUmodule m_module;
-	CUfunction m_function;
-
+	uint32* m_outH;
+        uint32* m_outD; 
+        
+        cudaStream_t stream;
 };
 
-/*
-class CUDARunner:public GPURunner<unsigned long,int>
-{
-public:
-	CUDARunner();
-	~CUDARunner();
 
-	void FindBestConfiguration();
-
-	const unsigned long RunStep();
-
-	cuda_in *GetIn()		{ return m_in; }
-
-private:
-	void DeallocateResources();
-	void AllocateResources(const int numb, const int numt);
-
-	cuda_in *m_in;
-	cuda_in *m_devin;
-	cuda_out *m_out;
-	cuda_out *m_devout;
-
-};
-*/
 
 #endif	// _bitcoin_miner_cuda_

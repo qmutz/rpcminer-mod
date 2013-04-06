@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 	std::string user("");
 	std::string password("");
 	std::string statsurl("");
-	int workrefreshms=4000;
+	int workrefreshms=2000;
 	int threadcount=1;
 
 	ParseParameters(argc,argv);
