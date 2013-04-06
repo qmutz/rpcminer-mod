@@ -148,7 +148,7 @@ const unsigned long CUDARunner::RunStep(uint32 nonce)
     static unsigned int lastMerkle = 0;
     if (m_inH[cudaIn::ntime] != lastTime || m_inH[cudaIn::merkle] != lastMerkle)
     {
-        lastTime = m_inH[cudaIn::ntime];
+/*        lastTime = m_inH[cudaIn::ntime];
         lastMerkle = m_inH[cudaIn::merkle];
         unsigned int AH[8];
         unsigned int t1;
@@ -162,7 +162,7 @@ const unsigned long CUDARunner::RunStep(uint32 nonce)
 
         for (int i = 0; i < 8; ++i)
             m_inH[cudaIn::preCals + i] = AH[i];
-
+*/
         CUDA_CHECK(cudaMemcpyAsync(m_inD, m_inH, cudaIn::count * sizeof (uint32), cudaMemcpyHostToDevice, stream));
     }
 

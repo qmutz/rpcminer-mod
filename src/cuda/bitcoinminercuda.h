@@ -36,9 +36,9 @@
 
 #define __blocksPerSM(version)  \
         ((version)<=130?2:             \
-        ((version)<=210?4:             \
-        ((version)<=300?8:             \
-        ((version)<=350?8:1 \
+        ((version)<=210?3:             \
+        ((version)<=300?5:             \
+        ((version)<=350?6:1 \
         ))))
 
 class CUDARunner:public GPURunner<unsigned long,int>
