@@ -53,7 +53,7 @@ m_outD(NULL)
     cudaError_t error;
     std::cout<<"Test to select device with number "<<m_deviceindex<<std::endl;
     error=cudaSetDevice(m_deviceindex);
-    if(error!=cudaSetDevice(m_deviceindex))
+    if(error!=cudaSuccess)
     {
     	std::cerr<<"Device selction crash, we ignore it and test if driver autoselection works"<<std::endl;    	
     }
