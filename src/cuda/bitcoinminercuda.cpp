@@ -50,8 +50,14 @@ m_outD(NULL)
         std::cerr << "no CUDA device " << m_deviceindex << ", only " << num_gpus << " devices found" << std::endl;
         throw std::runtime_error("CUDA capable devices can't be selected");
     }
-
-    CUDA_CHECK(cudaSetDevice(m_deviceindex));
+    cudaError_t error;
+    std::cout<<"Test to select device with number "<<m_deviceindex<<std::endl;
+    error=cudaSetDevice(m_deviceindex);
+    if(error!=cudaSetDevice(m_deviceindex))
+    {
+    	std::cerr<<"Device selction crash, we ignore it and test if driver autoselection works"<<std::endl;    	
+    }
+    //CUDA_CHECK(cudaSetDevice(m_deviceindex));
     CUDA_CHECK(cudaSetDeviceFlags(cudaDeviceScheduleYield));
     std::cout << "CUDA initialized" << std::endl;
 }
